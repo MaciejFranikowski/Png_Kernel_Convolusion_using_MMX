@@ -8,10 +8,7 @@
 	return -1 ;                                                   \
 
 
-void filter (
-	unsigned char * M, unsigned char * W,
-	int width, int height
-) ;
+void filterC(	unsigned char * M, unsigned char * W,	int width, int height);
 
 void drawVerticalLine(unsigned char * M, unsigned char * W, int width, int height);
 void drawHorizontalLine(unsigned char * M, unsigned char * W, int width, int height);
@@ -119,10 +116,8 @@ int main (int argc, char ** argv)
 
 	unsigned char * W = malloc (size) ;
 
-		drawVerticalLine(M,W,width,height);
-		drawHorizontalLine(M,W,width,height);
-    W = M;
-	//filter (M, W, width, height) ;
+
+	filterC (M, W, width, height) ;
 
 
 
