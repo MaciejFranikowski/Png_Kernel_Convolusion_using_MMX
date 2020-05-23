@@ -12,6 +12,98 @@ void drawVerticalLine(unsigned char * M, unsigned char * W, int width, int heigh
   }
 }
 
+int convolute(unsigned char * M, unsigned char * W,	int index){
+  int k[] = {-1, -1, 0, -1, 0, 1, 0, 1, 1};
+  int container = 0;
+  //W[index] += M[]
+
+  /*for(int = 0; i < 9; i++){
+    w[index] += M[index - ] k[i];
+  }*/
+  /*
+  printf("W aktualnie: %d", W[index]);
+  W[index] += M[index - 801] * k[0];
+  printf("W aktualnie: %d, M[index - 801] : %d, k[0]: %d\n", W[index], M[index - 801], k[0]);
+  W[index] += M[index - 800] * k[1];
+  printf("W aktualnie: %d, M[index - 800] : %d, k[1]: %d\n", W[index], M[index - 800], k[1]);
+  W[index] += M[index - 799] * k[2];
+  printf("W aktualnie: %d, M[index - 801] : %d, k[2]: %d\n", W[index], M[index - 799], k[2]);
+  W[index] += M[index -   1] * k[3];
+  printf("W aktualnie: %d, M[index - 801] : %d, k[3]: %d\n", W[index], M[index -   1], k[3]);
+  W[index] += M[index +   0] * k[4];
+  printf("W aktualnie: %d, M[index - 801] : %d, k[4]: %d\n", W[index], M[index +   0], k[4]);
+  W[index] += M[index +   1] * k[5];
+  printf("W aktualnie: %d, M[index - 801] : %d, k[5]: %d\n", W[index], M[index +    1], k[5]);
+  W[index] += M[index + 799] * k[6];
+  printf("W aktualnie: %d, M[index - 801] : %d, k[6]: %d\n", W[index], M[index + 799], k[6]);
+  W[index] += M[index + 800] * k[7];
+  printf("W aktualnie: %d, M[index - 801] : %d, k[7]: %d\n", W[index], M[index + 800], k[7]);
+  W[index] += M[index + 801] * k[8];
+  printf("W aktualnie: %d, M[index - 801] : %d, k[8]: %d\n", W[index], M[index + 801], k[8]);
+
+  //W = <0,222>
+  // Max w possible is 666
+  // W(a) = a/3
+  W[index] = W[index]/3;
+  */
+  //printf("W aktualnie: %d", W[index]);
+  container += M[index - 801] * k[0];
+  //printf("W aktualnie: %d, M[index - 801] : %d, k[0]: %d\n", container, M[index - 801], k[0]);
+  container += M[index - 800] * k[1];
+  //printf("W aktualnie: %d, M[index - 800] : %d, k[1]: %d\n", container, M[index - 800], k[1]);
+  container += M[index - 799] * k[2];
+  //printf("W aktualnie: %d, M[index - 801] : %d, k[2]: %d\n", container, M[index - 799], k[2]);
+  container += M[index -   1] * k[3];
+  //printf("W aktualnie: %d, M[index - 801] : %d, k[3]: %d\n", container, M[index -   1], k[3]);
+  container += M[index +   0] * k[4];
+  //printf("W aktualnie: %d, M[index - 801] : %d, k[4]: %d\n", container, M[index +   0], k[4]);
+  container += M[index +   1] * k[5];
+  //printf("W aktualnie: %d, M[index - 801] : %d, k[5]: %d\n", container, M[index +    1], k[5]);
+  container += M[index + 799] * k[6];
+  //printf("W aktualnie: %d, M[index - 801] : %d, k[6]: %d\n", container, M[index + 799], k[6]);
+  container += M[index + 800] * k[7];
+  //printf("W aktualnie: %d, M[index - 801] : %d, k[7]: %d\n", container, M[index + 800], k[7]);
+  container+= M[index + 801] * k[8];
+  //printf("W aktualnie: %d, M[index - 801] : %d, k[8]: %d\n", container, M[index + 801], k[8]);
+  // if(container < 0) container = 0;
+  //container = container / 3;
+  container = (container + 3*271)/6;
+
+  W[index] = container;
+
+  printf("%d\n", W[index]);
+
+  return container;
+
+}
+
+
+
+int findMin(unsigned char * M, int width, int height){
+  int min = M[0];
+
+  for( int j = 0; j < height * width; j++){
+     if(M[j] < min){
+       min = M[j];
+     }
+  }
+
+  return min;
+}
+
+int findMax(unsigned char * M, int width, int height){
+  int max = M[0];
+
+  for( int j = 0; j < height * width; j++){
+     if(M[j] > max){
+       max = M[j];
+     }
+  }
+
+  return max;
+}
+
+
 void drawHorizontalLine(unsigned char * M, unsigned char * W, int width, int height){
 
    for( int j = 0; j < height; j++){
@@ -25,14 +117,16 @@ void drawHorizontalLine(unsigned char * M, unsigned char * W, int width, int hei
 }
 
 void filterC(	unsigned char * M, unsigned char * W,	int width, int height){
-  int k[] = {-1, -1, 0, -1, 0, 1, 0, 1, 1};
+
 
   for(int j = 0; j < height; j ++){
     for(int i = 0; i < width; i++){
         if (j > 0 && j < height- 1 && i > 0 && i < width - 1){
 
           // calculate W[j * 800 + i] = convolution(i,j)
-          printf("Index: %d\n", j*800 + i);
+          //printf("Index: %d\n", j*800 + i);
+          convolute(M, W, j*800 + i);
+          //convolute2(M, C,j*800 + i);
         }
 
     }

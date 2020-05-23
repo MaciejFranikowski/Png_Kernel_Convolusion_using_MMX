@@ -2,16 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #define ERROR                                                   \
 	fprintf (stderr, "ERROR at %s:%d.\n", __FILE__, __LINE__) ;   \
 	return -1 ;                                                   \
 
 
-void filterC(	unsigned char * M, unsigned char * W,	int width, int height);
+void filterC(	unsigned char * M, unsigned char * W, int width, int height);
 
 void drawVerticalLine(unsigned char * M, unsigned char * W, int width, int height);
 void drawHorizontalLine(unsigned char * M, unsigned char * W, int width, int height);
+int findMin(unsigned char * M, int width, int height);
+int findMax(unsigned char * M, int width, int height);
+//int findMin2(short * M, int width, int height);
+//int findMax2(short * M, int width, int height);
 
 int main (int argc, char ** argv)
 {
@@ -116,10 +119,17 @@ int main (int argc, char ** argv)
 
 	unsigned char * W = malloc (size) ;
 
+	printf("Min: %d\nMax: %d\n", findMin(M,width,height), findMax(M,width,height));
+	printf("Min: %d\nMax: %d\n", findMin(W,width,height), findMax(W,width,height));
+//	printf("Min: %d\nMax: %d\n", findMin2(C,width,height), findMax2(C,width,height));
 
-	filterC (M, W, width, height) ;
+	filterC (M, W ,width, height) ;
 
+	printf("Min: %d\nMax: %d\n", findMin(M,width,height), findMax(M,width,height));
+	printf("Min: %d\nMax: %d\n", findMin(W,width,height), findMax(W,width,height));
+//	printf("Min: %d\nMax: %d\n", findMin2(C,width,height), findMax2(C,width,height));
 
+	//printf("Min: %d\nMax: %d\n", findMin2(C,width,height), findMax2(C,width,height));
 
 
 	png_structp write_png_ptr =
