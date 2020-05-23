@@ -12,9 +12,9 @@ void drawVerticalLine(unsigned char * M, unsigned char * W, int width, int heigh
   }
 }
 
-int convolute(unsigned char * M, unsigned char * W,	int index){
-  int k[] = {-1, -1, 0, -1, 0, 1, 0, 1, 1};
-  int container = 0;
+short convolute(unsigned char * M, unsigned char * W,	int index){
+  short k[] = {-1, -1, 0, -1, 0, 1, 0, 1, 1};
+  short container = 0;
   //W[index] += M[]
 
   /*for(int = 0; i < 9; i++){
@@ -66,13 +66,12 @@ int convolute(unsigned char * M, unsigned char * W,	int index){
   container+= M[index + 801] * k[8];
   //printf("W aktualnie: %d, M[index - 801] : %d, k[8]: %d\n", container, M[index + 801], k[8]);
   // if(container < 0) container = 0;
-  //container = container / 3;
-  container = (container + 3*271)/6;
-
+  //container = (container + 3* 256)/6;
+  container = (container + 484)/(5);
+  printf("%hd\n",container);
   W[index] = container;
 
-  printf("%d\n", W[index]);
-
+  //printf("%c\n", W[index]);
   return container;
 
 }
@@ -117,18 +116,25 @@ void drawHorizontalLine(unsigned char * M, unsigned char * W, int width, int hei
 }
 
 void filterC(	unsigned char * M, unsigned char * W,	int width, int height){
-
-
+  short max = -24242;
+  short min = 24242;
+  short x = 0;
   for(int j = 0; j < height; j ++){
     for(int i = 0; i < width; i++){
         if (j > 0 && j < height- 1 && i > 0 && i < width - 1){
 
           // calculate W[j * 800 + i] = convolution(i,j)
           //printf("Index: %d\n", j*800 + i);
-          convolute(M, W, j*800 + i);
-          //convolute2(M, C,j*800 + i);
+          x = convolute(M, W, j*800 + i);
+          if( x > max){
+            max =x;
+          }
+          if(x < min){
+            min = x;
+          }
         }
 
     }
   }
+  printf("Min: %hd, Max: %hd",min,max);
 }
