@@ -115,7 +115,7 @@ height_loop:
     # Liczba 2
     movl base_index, %eax
     movl width_incl, %edx
-    xorl $0xFFFFFFFF, %edx
+    imul $-1, %edx
     addl %edx, %eax
     xorl %esi, %esi
     movb (%ebx, %eax, 1), %dl
@@ -126,7 +126,7 @@ height_loop:
     incl %esi
     movl base_index, %eax
     movl width, %edx
-    xorl $0xFFFFFFFF, %edx
+    imul $-1, %edx
     addl %edx, %eax
     movb (%ebx, %eax, 1), %dl
     movb %dl, liczba1(%esi)
