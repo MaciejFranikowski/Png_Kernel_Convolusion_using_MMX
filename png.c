@@ -8,6 +8,7 @@
 
 
 void filterC(	unsigned char * M, unsigned char * W, int width, int height);
+void filter_MMX(unsigned char * M, unsigned char * W, int width, int height);
 
 void drawVerticalLine(unsigned char * M, unsigned char * W, int width, int height);
 void drawHorizontalLine(unsigned char * M, unsigned char * W, int width, int height);
@@ -122,7 +123,8 @@ int main (int argc, char ** argv)
 	printf("Min W before convolusion. Min: %d\nMax: %d\n\n", findMin(W,width,height), findMax(W,width,height));
 
 
-	filterC (M, W ,width, height) ;
+	//filterC (M, W ,width, height);
+	filter_MMX(M, W ,width, height);
 
 	printf("\nMin M after convolusion. Min: %d\nMax: %d\n", findMin(M,width,height), findMax(M,width,height));
 	printf("Min W after convolusion. Min: %d\nMax: %d\n", findMin(W,width,height), findMax(W,width,height));
