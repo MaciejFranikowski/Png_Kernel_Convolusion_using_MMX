@@ -1,6 +1,5 @@
 .data
-printf_String:
-.string "Index: %d\n"
+
 width:
 .space 4
 width_decl:
@@ -13,10 +12,6 @@ height:
 height_decl:
 .space 4
 
-storage:
-.space 4
-index:
-.space 4
 base_index:
 .space 4
 liczba1:
@@ -24,6 +19,8 @@ liczba1:
 jeden_and:
 .space 8
 drugi_and:
+.space 8
+skalowanko:
 .space 8
 
 .text
@@ -39,8 +36,10 @@ pushl %ebx
 # Get the given arguments and assign them to symbols.
 # unsigned char * M, unsigned char * W, int width, int height
 # 4B, 4B, 4B, 4B
+
 movl $65535, jeden_and
 movl $255, drugi_and
+movl $765, skalowanko
 
 # Width
 movl 16(%ebp), %eax
@@ -97,11 +96,13 @@ height_loop:
 
 
     incl %esi
+    incl %esi
     movl base_index, %eax
     addl width_incl, %eax
     movb (%ebx, %eax, 1), %dl
     movb %dl, liczba1(%esi)
 
+    incl %esi
     incl %esi
     movl base_index, %eax
     addl $1, %eax
@@ -122,14 +123,15 @@ height_loop:
 
 
     incl %esi
+    incl %esi
     movl base_index, %eax
     movl width, %edx
     xorl $0xFFFFFFFF, %edx
     addl %edx, %eax
-    # addl - width, %eax
     movb (%ebx, %eax, 1), %dl
     movb %dl, liczba1(%esi)
 
+    incl %esi
     incl %esi
     movl base_index, %eax
     addl $-1, %eax
@@ -139,16 +141,24 @@ height_loop:
 
     movq liczba1, %mm2
 
+
+
     # Odejmowanie mm1 = mm1 - mm2, czyli {[indeks + 801], [indeks + 800], [indeks + 1]} - {[indeks - 800][indeks - 1][indeks - 801]}
-    psubusb %mm2,%mm1
+    psubsw %mm2,%mm1
 
     movq %mm1, %mm2
-    psrlq $16, %mm2
-    paddusb %mm2,%mm1
-    pand drugi_and, %mm1
+    psrlq $32, %mm2
+    paddsw %mm2,%mm1
+    pand jeden_and, %mm1
     movq %mm1, %mm2
-    psrlq $8, %mm2
-    paddusb %mm2,%mm1
+    psrlq $16, %mm2
+    paddsw %mm2,%mm1
+
+    movl skalowanko, %edx
+    movd %edx, %mm2
+    paddsw %mm2,%mm1
+
+    psrlq $3, %mm1
 
     # Wynik ostateczny do edx
     movd %mm1, %edx
@@ -156,7 +166,6 @@ height_loop:
     movl 12(%ebp), %ebx
     movl base_index, %eax
     movb %dl, (%ebx, %eax, 1)
-
 
     convolution_skip:
     incl %ecx
