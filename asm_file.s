@@ -1,6 +1,5 @@
 .data
-printf_String:
-.string "Index: %d\n"
+
 width:
 .space 4
 width_decl:
@@ -13,17 +12,13 @@ height:
 height_decl:
 .space 4
 
-storage:
+current_index:
 .space 4
-index:
-.space 4
-base_index:
-.space 4
-liczba1:
+
+number_storage:
 .space 8
-jeden_and:
-.space 8
-drugi_and:
+
+and_number:
 .space 8
 
 .text
@@ -36,12 +31,13 @@ pushl %ebp
 movl %esp, %ebp
 pushl %edi
 pushl %ebx
-# Get the given arguments and assign them to symbols.
-# unsigned char * M, unsigned char * W, int width, int height
-# 4B, 4B, 4B, 4B
-movl $65535, jeden_and
-movl $255, drugi_and
+pushl %esi
 
+# Preprare the number used for and later in the algoryithm. 1111 1111
+movl $255, and_number
+# Get the given arguments and assign them to symbols.
+# unsigned char * M, unsigned char * W, int width, int height.
+# 4B, 4B, 4B, 4B
 # Width
 movl 16(%ebp), %eax
 incl %eax
@@ -50,7 +46,7 @@ decl %eax
 movl %eax, width
 decl %eax
 movl %eax, width_decl
-# height
+# Height
 movl 20(%ebp), %eax
 movl %eax, height
 decl %eax
@@ -59,19 +55,22 @@ movl %eax, height_decl
 xorl %ecx ,%ecx
 xorl %edi ,%edi
 
+# Loop eqivalent to:   for(edi = 0; edi < height; edi ++)
 height_loop:
 
   cmpl %edi, height
   je height_loop_end
 
   xorl %ecx, %ecx
+  # Loop eqivalent to:   for(ecx = 0; ecx < width; ecx ++)
   width_loop:
 
     cmpl %ecx, width
     je width_loop_end
 
+    # Making sure we're skipping outer rows and columns.
     # (edi == 0 || edi == height - 1 || ecx == 0 || ecx == width - 1)
-    # dont convolute
+    # If any of these conditions is true, don't covolute.
     cmpl $0, %edi
     je convolution_skip
     # height - 1 == edi
@@ -83,61 +82,68 @@ height_loop:
     cmpl %ecx, width_decl
     je convolution_skip
 
+    # Calcuating current index- the middle cell of the 3x3 matrix.
+    # The index is calculated: width * height_counter(edi) + width_counter(ecx)
+    # This is because of the nature of the M array, which is row ordered.
     movl width, %eax
     mull  %edi
     addl %ecx, %eax
-    movl %eax, base_index
+    movl %eax, current_index
 
-
+    # Get the M adress, save it ebx.
     movl 8(%ebp), %ebx
+
+    # Calculate the index of the cell under the middle cell.
     addl width, %eax
     xorl %esi, %esi
     movb (%ebx, %eax, 1), %dl
-    movb %dl, liczba1
+    # Send the cell's contents to number_storage.
+    movb %dl, number_storage
 
-
+    # Do the same for the remaining numbers, sending them to number_storage
+    # on neighbooring
     incl %esi
-    movl base_index, %eax
+    movl current_index, %eax
     addl width_incl, %eax
     movb (%ebx, %eax, 1), %dl
-    movb %dl, liczba1(%esi)
+    movb %dl, number_storage(%esi)
 
     incl %esi
-    movl base_index, %eax
+    movl current_index, %eax
     addl $1, %eax
     movb (%ebx, %eax, 1), %dl
-    movb %dl, liczba1(%esi)
+    movb %dl, number_storage(%esi)
 
 
-    movq liczba1, %mm1
+    movq number_storage, %mm1
 
     # Liczba 2
-    movl base_index, %eax
+    movl current_index, %eax
     movl width_incl, %edx
     imul $-1, %edx
     addl %edx, %eax
     xorl %esi, %esi
     movb (%ebx, %eax, 1), %dl
-    movb %dl, liczba1
+    movb %dl, number_storage
 
 
     incl %esi
-    movl base_index, %eax
+    movl current_index, %eax
     movl width, %edx
     imul $-1, %edx
     addl %edx, %eax
     # addl - width, %eax
     movb (%ebx, %eax, 1), %dl
-    movb %dl, liczba1(%esi)
+    movb %dl, number_storage(%esi)
 
     incl %esi
-    movl base_index, %eax
+    movl current_index, %eax
     addl $-1, %eax
     movb (%ebx, %eax, 1), %dl
-    movb %dl, liczba1(%esi)
+    movb %dl, number_storage(%esi)
 
 
-    movq liczba1, %mm2
+    movq number_storage, %mm2
 
     # Odejmowanie mm1 = mm1 - mm2, czyli {[indeks + 801], [indeks + 800], [indeks + 1]} - {[indeks - 800][indeks - 1][indeks - 801]}
     psubusb %mm2,%mm1
@@ -145,7 +151,7 @@ height_loop:
     movq %mm1, %mm2
     psrlq $16, %mm2
     paddusb %mm2,%mm1
-    pand drugi_and, %mm1
+    pand and_number, %mm1
     movq %mm1, %mm2
     psrlq $8, %mm2
     paddusb %mm2,%mm1
@@ -154,7 +160,7 @@ height_loop:
     movd %mm1, %edx
     # Macierz W
     movl 12(%ebp), %ebx
-    movl base_index, %eax
+    movl current_index, %eax
     movb %dl, (%ebx, %eax, 1)
 
 
@@ -171,6 +177,8 @@ height_loop:
   jmp height_loop
 height_loop_end:
 
+# Restore register values and the frame pointer, according to ABI.
+popl %esi
 popl %ebx
 popl %edi
 movl %ebp, %esp
